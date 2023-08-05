@@ -1,3 +1,8 @@
+import type { UpdateInfo } from 'electron-updater'
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Empty = {}
+
 export enum SupportedExt {
   png = 'png',
   jpg = 'jpg',
@@ -25,6 +30,7 @@ export const enum IpcChannel {
   SYNC = 'SYNC',
   APP_UPDATE = 'APP_UPDATE',
   READY = 'READY',
+  RESPONSE = 'RESPONSE',
 }
 
 export const enum SaveType {
@@ -81,16 +87,7 @@ export interface IBackendState {
   aloneMode: boolean
 }
 
-export interface IUpdateInfo {
-  path: string
-  githubArtifactName: string
-  releaseName: string
-  releaseNotes: string
-  releaseDate: string
-  sha512: string
-  stagingPercentage: number
-  version: string
-}
+export type IUpdateInfo = UpdateInfo
 
 export interface IDefaultOptions {
   jpg: IOptimizeOptions
@@ -100,7 +97,7 @@ export interface IDefaultOptions {
 
 export interface IGlobals {
   activeId?: string
-  updateInfo?: IUpdateInfo
+  updateInfo?: UpdateInfo
   optionsVisible: boolean
   defaultOptions: IDefaultOptions
 }
@@ -108,4 +105,24 @@ export interface IGlobals {
 export interface IState {
   tasks: ITaskItem[]
   globals: IGlobals
+}
+
+export type AsyncCall<Payload, Response> = (payload: Payload) => Promise<Response>
+
+export interface RendererIpcPayload {
+  [IpcChannel.READY]: null;
+  [IpcChannel.FILE_ADD]: string[];
+  [IpcChannel.FILE_SELECT]: null;
+  [IpcChannel.SAVE]: {
+    images: IImageFile[];
+    type: SaveType;
+  };
+  [IpcChannel.SYNC]: IBackendState;
+}
+
+export interface MainIpcPayload {
+  [IpcChannel.SAVE]: SaveType;
+  [IpcChannel.SAVED]: SaveType;
+  [IpcChannel.FILE_SELECTED]: IImageFile[];
+  [IpcChannel.APP_UPDATE]: UpdateInfo;
 }
